@@ -1,57 +1,28 @@
 require 'rails_helper'
 
-describe "patients", type:  :feature do
+describe 'Patient' do
+
   before do
-    Doctor.create([
-      {name: "Meredith Grey", department: "Internal Medicine"},
-      {name: "Hawkeye Pierce", department: "Surgery"},
-      {name: "Leonard 'Bones' McCoy", department: "Internal Medicine"},
-      {name: "Phillip Chandler", department: "Internal Medicine"},
-      {name: "Michaela Quinn", department: "Internal Medicine"}
-    ])
-
-    Patient.create([
-      {name: "Homer Simpson", age:38},
-      {name: "Bart Simpson", age:10},
-      {name: "Marge Simpson", age:36},
-      {name: "Lisa Simpson", age:8},
-      {name: "Maggie Simpson", age:1},
-    ])
-
-    Appointment.create([
-      {appointment_datetime: DateTime.new(2016, 03, 15, 18, 00, 0), patient_id: 1, doctor_id: 2},
-      {appointment_datetime: DateTime.new(2016, 01, 11, 20, 20, 0), patient_id: 2, doctor_id: 1},
-      {appointment_datetime: DateTime.new(2016, 04, 22, 14, 00, 0), patient_id: 3, doctor_id:5 },
-      {appointment_datetime: DateTime.new(2017, 10, 30, 15, 00, 0), patient_id: 4, doctor_id:4 },
-      {appointment_datetime: DateTime.new(2016, 07, 11, 16, 00, 0), patient_id: 5, doctor_id: 3},
-      {appointment_datetime: DateTime.new(2016, 05, 31, 17, 00, 0), patient_id: 1, doctor_id: 2},
-      {appointment_datetime: DateTime.new(2017, 06, 03, 10, 00, 0), patient_id: 3, doctor_id: 1}
-      ])
-
-      @meredith = Doctor.first
-      @bart = Patient.find(2)
+    @patient = Patient.create(name: "Russell Wilson", age: 27)
+    @mcdreamy = Doctor.create(name: "Derek Shepherd", department: "Neurosurgery")
+    @meredith = Doctor.create(name: "Meredith Grey", department: "Internal Medicine")
+    @appointment1 = Appointment.create(appointment_datetime: DateTime.new(2016, 10, 1), doctor: @mcdreamy, patient: @patient  )
+    @appointment2 = Appointment.create(appointment_datetime: DateTime.new(2016, 10, 1), doctor: @meredith, patient: @patient  )
   end
 
-  describe "#index page" do
-    it 'lists all of the patients and the number of appointments they have' do
-      visit patients_path
-      within("ul") do
-        expect(page).to have_content("Name: Marge Simpson Number of Appointments: 2")
-        expect(page).to have_content("Name: Bart Simpson Number of Appointments: 1")
-      end
-    end
+  it 'has a name' do
+    expect(@patient.name).to eq("Russell Wilson")
   end
 
-  describe "#show page" do
-    it "shows all of a patient's appointment times in a human readable format" do
-      visit patient_path(@bart)
-      expect(page).to have_content("January 11, 2016 at 20:20")
-    end
-
-    it "links to the doctor's show page by name for the doctor of each appointment" do
-      visit patient_path(@bart)
-      expect(page).to have_link("Meredith Grey", href: doctor_path(@meredith))
-    end
+  it 'has an age' do
+    expect(@patient.age).to eq(27)
   end
 
+  it 'has many appointments' do
+    expect(@patient.appointments).to eq([@appointment1, @appointment2])
+  end
+
+  it 'has many doctors, through appointments' do
+    expect(@patient.doctors).to eq([@mcdreamy, @meredith])
+  end
 end
